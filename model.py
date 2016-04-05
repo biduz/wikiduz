@@ -1,5 +1,6 @@
 from google.appengine.ext import db
 import datetime
+import stuff
 
 class Users(db.Model):
 	name = db.StringProperty()
@@ -25,3 +26,7 @@ def new_user(name, email, password):
 
 def get_user_by_name(username):
 	return Users.all().filter('name = ', username).get()
+
+def valid_password(pw, user_id):
+	h = Users.get_by_id(user_id).password
+	return stuff.valid_pw(pw, h)

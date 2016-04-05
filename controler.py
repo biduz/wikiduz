@@ -1,19 +1,7 @@
-import webapp2
-import jinja2
+from main_handler import MainHandler
 import model
 import stuff
-import os
 import re
-
-class MainHandler(webapp2.RequestHandler):
-    def write(self, response):
-        self.response.write(response)
-
-    def render(self, template, **params):
-        template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-        env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
-        template = env.get_template(template)
-        self.write(template.render(params))
 
 class Index(MainHandler):
     def get(self):
@@ -65,7 +53,7 @@ class Signup(MainHandler):
         else:
             password = stuff.make_pw_hash(password)
             user = model.new_user(username, email, password)
-            self.response.headers.add_header('Set-Cookie', 'user=%s' % user)
+            self.login(user)
             self.redirect('/')
 
 class Login(MainHandler):
@@ -73,7 +61,17 @@ class Login(MainHandler):
         self.render('login.html')
 
     def post(self):
-        pass
+        username = self.request.get('username')
+        password = self.request.get('password')
+        
+        user = model.get_user_by_name(username)
+        user_id = user.key().id() if user else None
+        if user_id and model.valid_password(password, user_id):
+            self.login(user_id)
+            self.redirect('/')
+        else:
+            error = 'Invalid Login'
+            self.render('login.html', username = username, error = error)
 
 class Edit(MainHandler):
     def get(self, page):
@@ -90,6 +88,7 @@ class WikiPage(MainHandler):
     def get(self, page):
         pass
 
+import webapp2
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/', Index),
                                ('/signup', Signup),
