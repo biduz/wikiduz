@@ -22,7 +22,7 @@ def new_user(name, email, password):
 	user.password = password
 	user.time = datetime.datetime.now()
 	user.put()
-	return user.key().id()
+	return user
 
 def get_user_by_name(username):
 	return Users.all().filter('name = ', username).get()

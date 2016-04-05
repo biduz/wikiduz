@@ -67,7 +67,7 @@ class Login(MainHandler):
         user = model.get_user_by_name(username)
         if user:
             if stuff.valid_pw(password, user.password):
-                self.login(user.key().id())
+                self.login(user)
                 self.redirect('/')
             else:
                 error = 'Invalid Password'

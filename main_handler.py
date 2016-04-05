@@ -15,5 +15,5 @@ class MainHandler(webapp2.RequestHandler):
     def set_cookie(self, cookie):
     	self.response.headers.add_header('Set-Cookie', 'user=%s' % cookie)
 
-    def login(self, user_id):
-    	self.set_cookie(user_id)
+    def login(self, user):
+    	self.set_cookie(user.key().id())
