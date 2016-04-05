@@ -1,4 +1,5 @@
 from google.appengine.ext import db
+import datetime
 
 class Users(db.Model):
 	name = db.StringProperty()
@@ -12,3 +13,12 @@ class Pages(db.Model):
 	last_edit_by = db.StringProperty()
 	last_edit_date = db.DateTimeProperty()
 	created = db.DateTimeProperty()
+
+def new_user(name, email, password):
+	user = Users()
+	user.name = name
+	user.email = email
+	user.password = password
+	user.time = datetime.datetime.now()
+	user.put()
+	return user.key().id()
