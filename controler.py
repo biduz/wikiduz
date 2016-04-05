@@ -19,6 +19,9 @@ class Index(MainHandler):
     def get(self):
         self.render('index.html')
 
+def available_username(username):
+    return not model.get_user_by_name(username)
+
 def valid_username(username):
     return username and re.match('^[\S]+$', username)
 
@@ -44,6 +47,9 @@ class Signup(MainHandler):
         if not valid_username(username):
             have_error = True
             params['username_error'] = "That's not a valid username."
+        elif not available_username(username):
+            have_error = True
+            params['username_error'] = "That username is not available"
         if not password:
             have_error = True
             params['password_error'] = "That's not a valid password."   
