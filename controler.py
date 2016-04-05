@@ -1,6 +1,7 @@
 import webapp2
 import jinja2
 import model
+import stuff
 import os
 import re
 
@@ -56,6 +57,7 @@ class Signup(MainHandler):
         if have_error:
             self.render('signup.html', **params)       
         else:
+            password = stuff.make_pw_hash(password)
             user = model.new_user(username, email, password)
             self.response.headers.add_header('Set-Cookie', 'user=%s' % user)
             self.redirect('/')
