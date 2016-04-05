@@ -65,12 +65,15 @@ class Login(MainHandler):
         password = self.request.get('password')
         
         user = model.get_user_by_name(username)
-        user_id = user.key().id() if user else None
-        if user_id and model.valid_password(password, user_id):
-            self.login(user_id)
-            self.redirect('/')
+        if user:
+            if stuff.valid_pw(password, user.password):
+                self.login(user.key().id())
+                self.redirect('/')
+            else:
+                error = 'Invalid Password'
+                self.render('login.html', username = username, error = error)    
         else:
-            error = 'Invalid Login'
+            error = 'Invalid User'
             self.render('login.html', username = username, error = error)
 
 class Edit(MainHandler):
