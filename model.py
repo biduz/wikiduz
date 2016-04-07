@@ -26,3 +26,6 @@ def new_user(name, email, password):
 
 def get_user_by_name(username):
 	return Users.all().filter('name = ', username).get()
+
+def get_user_by_id(user_id):
+	return Users.get_by_id(user_id)

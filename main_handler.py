@@ -21,6 +21,19 @@ class MainHandler(webapp2.RequestHandler):
         user_cookie = stuff.make_user_cookie(user_id)
         self.set_cookie('user=%s' % user_cookie)
 
+    def get_cookie(self, cookie):
+        return self.request.cookies.get(cookie)
+
+    def delete_user_cookie(self):
+        self.set_cookie('user=')
+
     def login(self, user):
     	session.new_session(user)
         self.set_user_cookie(user.key().id())
+
+    def logout(self, user=None):
+        if not user:
+            self.delete_user_cookie()
+        else:
+            session.delete_session(user)
+            self.delete_user_cookie()

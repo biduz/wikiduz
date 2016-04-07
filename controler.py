@@ -76,6 +76,18 @@ class Login(MainHandler):
             error = 'Invalid User'
             self.render('login.html', username = username, error = error)
 
+class Logout(MainHandler):
+    def get(self):
+        try:
+            user_cookie = self.get_cookie('user')
+            user_id = int(stuff.get_val_from_secure_val(user_cookie))
+            user = model.get_user_by_id(user_id)
+            self.logout(user)
+            self.redirect('/')
+        except:
+            self.logout()
+            self.redirect('/')
+
 class Edit(MainHandler):
     def get(self, page):
         self.render('edit.html')
@@ -83,10 +95,6 @@ class Edit(MainHandler):
     def post(self, page):
         pass
         
-class Logout(MainHandler):
-    def get(self):
-        pass
-
 class WikiPage(MainHandler):
     def get(self, page):
         pass

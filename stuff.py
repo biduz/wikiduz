@@ -18,3 +18,6 @@ def make_secure_val(val, token):
 def make_user_cookie(user_id):
     token = session.get_session_token(user_id)
     return make_secure_val(str(user_id), token)
+
+def get_val_from_secure_val(secure_val):
+    return secure_val.split('|')[0]
