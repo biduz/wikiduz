@@ -5,6 +5,10 @@ import stuff
 import os
 
 class MainHandler(webapp2.RequestHandler):
+    def initialize(self,request, response):
+        super(MainHandler, self).initialize(request, response)
+        self.user = self.is_logged()
+
     def write(self, response):
         self.response.write(response)
 
@@ -37,3 +41,11 @@ class MainHandler(webapp2.RequestHandler):
         else:
             session.delete_session(user)
             self.delete_user_cookie()
+
+    def is_logged(self):
+        user_cookie = self.get_cookie('user')
+        try:
+            if user_cookie and stuff.check_secure_val(user_cookie):
+                return model.get_user_by_id(int(user_cookie.split('|')[0]))
+        except:
+            return

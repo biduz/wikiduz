@@ -9,6 +9,7 @@ def make_pw_hash(pw):
 
 def valid_pw(pw, h):
     return sha512_crypt.verify(pw, h)
+# end password stuff
 
 # Session stuff
 def make_secure_val(val, token):
@@ -21,3 +22,9 @@ def make_user_cookie(user_id):
 
 def get_val_from_secure_val(secure_val):
     return secure_val.split('|')[0]
+
+def check_secure_val(secure_val):
+	val = secure_val.split('|')[0]
+	token = session.get_session_token(int(val))
+	return make_secure_val(val, token) == secure_val
+# end session stuff

@@ -90,7 +90,10 @@ class Logout(MainHandler):
 
 class Edit(MainHandler):
     def get(self, page):
-        self.render('edit.html')
+        if self.user:
+            self.render('edit.html')
+        else:
+            self.write('Not logged in')
 
     def post(self, page):
         pass
