@@ -96,7 +96,13 @@ class Edit(MainHandler):
             self.write('Not logged in')
 
     def post(self, page):
-        pass
+        if self.user:    
+            content = self.request.get('content')
+            author = self.user.name
+            model.new_page(author = author, page = page)
+            self.redirect('%s' % page)
+        else:
+            self.write('Not Logged in')
         
 class WikiPage(MainHandler):
     def get(self, page):

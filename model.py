@@ -9,7 +9,7 @@ class Users(db.Model):
 	time = db.DateTimeProperty()
 	
 class Pages(db.Model):
-	name = db.StringProperty()
+	page = db.StringProperty()
 	author = db.StringProperty()
 	last_edit_by = db.StringProperty()
 	last_edit_date = db.DateTimeProperty()
@@ -29,3 +29,10 @@ def get_user_by_name(username):
 
 def get_user_by_id(user_id):
 	return Users.get_by_id(user_id)
+
+def new_page(page, author):
+	new_page = Pages()
+	new_page.page = page
+	new_page.author = author
+	new_page.created = datetime.datetime.now()
+	new_page.put() 
