@@ -48,7 +48,8 @@ class MainHandler(webapp2.RequestHandler):
         user_cookie = self.get_cookie('user')
         try:
             if user_cookie and stuff.check_secure_val(user_cookie):
-                return model.get_user_by_id(int(user_cookie.split('|')[0]))
+                user_id = stuff.get_val_from_secure_val(user_cookie)
+                return model.get_user_by_id(int(user_id))
         except ValueError, e:
             logging.error('Error checking if is logged\n ValueError: %s' % e)
             return

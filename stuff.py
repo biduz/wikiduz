@@ -24,7 +24,7 @@ def get_val_from_secure_val(secure_val):
     return secure_val.split('|')[0]
 
 def check_secure_val(secure_val):
-	val = secure_val.split('|')[0]
+	val = get_val_from_secure_val(secure_val)
 	token = session.get_session_token(int(val))
 	return make_secure_val(val, token) == secure_val
 # end session stuff
