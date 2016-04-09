@@ -84,7 +84,7 @@ class Logout(MainHandler):
             user = model.get_user_by_id(user_id)
             self.logout(user)
             self.redirect('/')
-        except:
+        except TypeError:
             self.logout()
             self.redirect('/')
 

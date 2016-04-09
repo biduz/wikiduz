@@ -13,7 +13,7 @@ def delete_session(user):
 def get_session_token(user_id):
     try:
         return session[user_id]['token']
-    except:
+    except KeyError:
         import logging
         logging.error('Failed importing token. user_id = %s' % user_id)
         return ' ' # hmac will not be happy if return None here
