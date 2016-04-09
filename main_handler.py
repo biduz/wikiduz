@@ -2,6 +2,8 @@ import webapp2
 import jinja2
 import session
 import stuff
+import model
+import logging
 import os
 
 class MainHandler(webapp2.RequestHandler):
@@ -19,7 +21,7 @@ class MainHandler(webapp2.RequestHandler):
         self.write(template.render(params))
 
     def set_cookie(self, cookie):
-    	self.response.headers.add_header('Set-Cookie', '%s; Path=/' % cookie)
+        self.response.headers.add_header('Set-Cookie', '%s; Path=/' % cookie)
 
     def set_user_cookie(self, user_id):
         user_cookie = stuff.make_user_cookie(user_id)
@@ -32,7 +34,7 @@ class MainHandler(webapp2.RequestHandler):
         self.set_cookie('user=')
 
     def login(self, user):
-    	session.new_session(user)
+        session.new_session(user)
         self.set_user_cookie(user.key().id())
 
     def logout(self, user=None):
@@ -47,5 +49,6 @@ class MainHandler(webapp2.RequestHandler):
         try:
             if user_cookie and stuff.check_secure_val(user_cookie):
                 return model.get_user_by_id(int(user_cookie.split('|')[0]))
-        except:
+        except ValueError, e:
+            logging.error('Error checking if is logged\n ValueError: %s' % e)
             return
