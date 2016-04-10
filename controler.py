@@ -116,8 +116,8 @@ class WikiPage(MainHandler):
         path = page
         page = model.get_page(page)
         if page:
-            # TBD: sanitize page.content before rendering
-            self.render('wikipage.html', page_content = page.content)
+            page_content = stuff.escape_html(page.content)
+            self.render('wikipage.html', page_content = page_content)
         else:
             self.redirect('/_edit%s' % path)
 

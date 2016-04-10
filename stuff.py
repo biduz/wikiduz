@@ -28,3 +28,8 @@ def check_secure_val(secure_val):
 	token = session.get_session_token(int(val))
 	return make_secure_val(val, token) == secure_val
 # end session stuff
+
+def escape_html(html):
+    escaped = html.replace('<script>', '&lt;script&gt;')
+    escaped = escaped.replace('</script>', '&lt;/script&gt;')
+    return escaped
