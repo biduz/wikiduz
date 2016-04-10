@@ -16,7 +16,8 @@ class MainHandler(webapp2.RequestHandler):
 
     def render(self, template, **params):
         template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-        env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
+                                 autoescape = True)
         template = env.get_template(template)
         self.write(template.render(params))
 
