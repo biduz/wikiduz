@@ -99,14 +99,20 @@ class Edit(MainHandler):
         if self.user:    
             content = self.request.get('content')
             author = self.user.name
-            model.new_page(author = author, page = page)
+            model.new_page(author = author, page = page, content = content)
             self.redirect('%s' % page)
         else:
             self.write('Not Logged in')
         
 class WikiPage(MainHandler):
     def get(self, page):
-        pass
+        path = page
+        page = model.get_page(page)
+        if page:
+            # TBD: sanitize page.content before rendering
+            self.render('wikipage.html', page_content = page.content)
+        else:
+            self.redirect('/_edit%s' % path)
 
 import webapp2
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'

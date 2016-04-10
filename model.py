@@ -11,6 +11,7 @@ class Users(db.Model):
 class Pages(db.Model):
 	page = db.StringProperty()
 	author = db.StringProperty()
+	content = db.TextProperty()
 	last_edit_by = db.StringProperty()
 	last_edit_date = db.DateTimeProperty()
 	created = db.DateTimeProperty()
@@ -30,9 +31,16 @@ def get_user_by_name(username):
 def get_user_by_id(user_id):
 	return Users.get_by_id(user_id)
 
-def new_page(page, author):
-	new_page = Pages()
-	new_page.page = page
-	new_page.author = author
-	new_page.created = datetime.datetime.now()
-	new_page.put() 
+def new_page(page, author, content):
+	new = Pages()
+	new.page = page
+	new.author = author
+	new.content = content
+	new.created = datetime.datetime.now()
+	new.put()
+	import time
+	time.sleep(0.5) # TBD: implement a strong consistency using
+					# parents/ancestor from GAE Datastore  
+
+def get_page(page):
+	return Pages.all().filter('page = ', page).get()
