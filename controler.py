@@ -91,15 +91,22 @@ class Logout(MainHandler):
 class Edit(MainHandler):
     def get(self, page):
         if self.user:
-            self.render('edit.html')
+            page = model.get_page(page)
+            content = page.content if page else ' '
+            self.render('edit.html', content = content)
         else:
             self.write('Not logged in')
 
     def post(self, page):
-        if self.user:    
+        if self.user:
+            path = model.get_page(page)
             content = self.request.get('content')
-            author = self.user.name
-            model.new_page(author = author, page = page, content = content)
+            if not path:
+                author = self.user.name
+                model.new_page(author = author, page = page, content = content)
+            else:
+                editor = self.user.name
+                model.edit_page(page = page, editor = editor, content = content)
             self.redirect('%s' % page)
         else:
             self.write('Not Logged in')

@@ -42,5 +42,16 @@ def new_page(page, author, content):
 	time.sleep(0.5) # TBD: implement a strong consistency using
 					# parents/ancestor from GAE Datastore  
 
+def edit_page(page, editor, content):
+	page = get_page(page)
+	edit = page
+	edit. content = content
+	edit.last_edit_by = editor
+	edit.last_edit_date = datetime.datetime.now()
+	edit.put()
+	import time
+	time.sleep(0.5) # TBD: implement a strong consistency using
+					# parents/ancestor from GAE Datastore
+
 def get_page(page):
 	return Pages.all().filter('page = ', page).get()
