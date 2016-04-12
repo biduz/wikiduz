@@ -1,6 +1,7 @@
 from google.appengine.ext import db
 import datetime
 import stuff
+from google.appengine.api import memcache
 
 class Users(db.Model):
 	name = db.StringProperty()
@@ -15,6 +16,16 @@ class Pages(db.Model):
 	last_edit_by = db.StringProperty()
 	last_edit_date = db.DateTimeProperty()
 	created = db.DateTimeProperty()
+
+class PageCache():
+	def __init__(self, page):
+		self.id = page.key().id()
+		self.page = page.page
+		self.author = page.author
+		self.content = page.content
+		self.last_edit_by = page.last_edit_by
+		self.last_edit_date = page.last_edit_date
+		self.created = page.created
 
 def new_user(name, email, password):
 	user = Users()
@@ -36,22 +47,40 @@ def new_page(page, author, content):
 	new.page = page
 	new.author = author
 	new.content = content
-	new.created = datetime.datetime.now()
+	created = datetime.datetime.now()
+	new.created = created
 	new.put()
-	import time
-	time.sleep(0.5) # TBD: implement a strong consistency using
-					# parents/ancestor from GAE Datastore  
+	# Put equivalent object in memcache to workaround consistency problem
+	cache_page = PageCache(new)
+	memcache.set(page, cache_page)
 
 def edit_page(page, editor, content):
-	page = get_page(page)
-	edit = page
-	edit. content = content
+	page_obj = get_page(page) # Get PageCache instance
+	edit = get_page_by_id(page_obj.id)
+	edit.content = content
 	edit.last_edit_by = editor
-	edit.last_edit_date = datetime.datetime.now()
+	date = datetime.datetime.now()
+	edit.last_edit_date = date
 	edit.put()
-	import time
-	time.sleep(0.5) # TBD: implement a strong consistency using
-					# parents/ancestor from GAE Datastore
+	# Update the values of the object in memcache
+	page_obj.content = content
+	page_obj.last_edit_by = editor
+	page_obj.last_edit_date = date
+	memcache.set(page, page_obj)
 
-def get_page(page):
-	return Pages.all().filter('page = ', page).get()
+def get_page(path):
+	page = memcache.get(path)
+	if not page:
+		page = get_page_by_path(path)
+		if not page:
+			return
+		cache_page = PageCache(page)
+		memcache.set(path, cache_page)
+		return cache_page
+	return page
+
+def get_page_by_path(path):
+	return Pages.all().filter('page = ', path).get()
+
+def get_page_by_id(page_id):
+	return Pages.get_by_id(page_id)
