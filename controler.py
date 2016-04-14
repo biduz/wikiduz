@@ -51,32 +51,31 @@ class Logout(MainHandler):
             self.redirect('/')
 
 class Edit(MainHandler):
-    def get(self, page):
+    def get(self, path):
         if self.user:
-            page = model.get_page(page)
+            page = model.get_page(path)
             content = page.content if page else ' '
             self.render('edit.html', content = content)
         else:
             self.write('Not logged in')
 
-    def post(self, page):
+    def post(self, path):
         if self.user:
-            path = model.get_page(page)
+            page = model.get_page(path)
             content = self.request.get('content')
-            if not path:
+            if not page:
                 author = self.user.name
-                model.new_page(author = author, page = page, content = content)
+                model.new_page(author = author, path = path, content = content)
             else:
                 editor = self.user.name
-                model.edit_page(page = page, editor = editor, content = content)
-            self.redirect('%s' % page)
+                model.edit_page(path = path, editor = editor, content = content)
+            self.redirect('%s' % path)
         else:
             self.write('Not Logged in')
         
 class WikiPage(MainHandler):
-    def get(self, page):
-        path = page
-        page = model.get_page(page)
+    def get(self, path):
+        page = model.get_page(path)
         if page:
             page_content = stuff.escape_html(page.content)
             self.render('wikipage.html', page_content = page_content)

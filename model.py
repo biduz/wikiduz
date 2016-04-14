@@ -1,6 +1,5 @@
 from google.appengine.ext import db
 import datetime
-import stuff
 from google.appengine.api import memcache
 
 class Users(db.Model):
@@ -10,7 +9,7 @@ class Users(db.Model):
 	time = db.DateTimeProperty()
 	
 class Pages(db.Model):
-	page = db.StringProperty()
+	path = db.StringProperty()
 	author = db.StringProperty()
 	content = db.TextProperty()
 	last_edit_by = db.StringProperty()
@@ -20,7 +19,7 @@ class Pages(db.Model):
 class PageCache():
 	def __init__(self, page):
 		self.id = page.key().id()
-		self.page = page.page
+		self.path = page.path
 		self.author = page.author
 		self.content = page.content
 		self.last_edit_by = page.last_edit_by
@@ -42,9 +41,9 @@ def get_user_by_name(username):
 def get_user_by_id(user_id):
 	return Users.get_by_id(user_id)
 
-def new_page(page, author, content):
+def new_page(path, author, content):
 	new = Pages()
-	new.page = page
+	new.path = path
 	new.author = author
 	new.content = content
 	created = datetime.datetime.now()
@@ -52,10 +51,10 @@ def new_page(page, author, content):
 	new.put()
 	# Put equivalent object in memcache to workaround consistency problem
 	cache_page = PageCache(new)
-	memcache.set(page, cache_page)
+	memcache.set(path, cache_page)
 
-def edit_page(page, editor, content):
-	page_obj = get_page(page) # Get PageCache instance
+def edit_page(path, editor, content):
+	page_obj = get_page(path) # Get PageCache instance
 	edit = get_page_by_id(page_obj.id)
 	edit.content = content
 	edit.last_edit_by = editor
@@ -66,7 +65,7 @@ def edit_page(page, editor, content):
 	page_obj.content = content
 	page_obj.last_edit_by = editor
 	page_obj.last_edit_date = date
-	memcache.set(page, page_obj)
+	memcache.set(path, page_obj)
 
 def get_page(path):
 	page = memcache.get(path)
@@ -80,7 +79,7 @@ def get_page(path):
 	return page
 
 def get_page_by_path(path):
-	return Pages.all().filter('page = ', path).get()
+	return Pages.all().filter('path = ', path).get()
 
 def get_page_by_id(page_id):
 	return Pages.get_by_id(page_id)
