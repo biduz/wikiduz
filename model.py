@@ -12,19 +12,14 @@ class Pages(db.Model):
 	path = db.StringProperty()
 	author = db.StringProperty()
 	content = db.TextProperty()
-	last_edit_by = db.StringProperty()
-	last_edit_date = db.DateTimeProperty()
-	created = db.DateTimeProperty()
+	date = db.DateTimeProperty()
 
 class PageCache():
 	def __init__(self, page):
-		self.id = page.key().id()
 		self.path = page.path
 		self.author = page.author
+		self.date = page.date
 		self.content = page.content
-		self.last_edit_by = page.last_edit_by
-		self.last_edit_date = page.last_edit_date
-		self.created = page.created
 
 def new_user(name, email, password):
 	user = Users()
@@ -46,31 +41,29 @@ def new_page(path, author, content):
 	new.path = path
 	new.author = author
 	new.content = content
-	created = datetime.datetime.now()
-	new.created = created
+	date = datetime.datetime.now()
+	new.date = date
 	new.put()
 	# Put equivalent object in memcache to workaround consistency problem
 	cache_page = PageCache(new)
 	memcache.set(path, cache_page)
 
 def edit_page(path, editor, content):
-	page_obj = get_page(path) # Get PageCache instance
-	edit = get_page_by_id(page_obj.id)
+	edit = Pages()
+	edit.path = path
 	edit.content = content
-	edit.last_edit_by = editor
+	edit.author = editor
 	date = datetime.datetime.now()
-	edit.last_edit_date = date
+	edit.date = date
 	edit.put()
 	# Update the values of the object in memcache
-	page_obj.content = content
-	page_obj.last_edit_by = editor
-	page_obj.last_edit_date = date
-	memcache.set(path, page_obj)
+	cache_page = PageCache(edit)
+	memcache.set(path, cache_page)
 
 def get_page(path):
 	page = memcache.get(path)
 	if not page:
-		page = get_page_by_path(path)
+		page = get_page_by_path(path).get()
 		if not page:
 			return
 		cache_page = PageCache(page)
@@ -78,8 +71,11 @@ def get_page(path):
 		return cache_page
 	return page
 
+def get_page_editions(path):
+	return list(get_page_by_path(path))
+
 def get_page_by_path(path):
-	return Pages.all().filter('path = ', path).get()
+	return Pages.all().filter('path = ', path).order('-date')
 
 def get_page_by_id(page_id):
 	return Pages.get_by_id(page_id)

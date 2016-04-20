@@ -82,6 +82,14 @@ class WikiPage(MainHandler):
         else:
             self.redirect('/_edit%s' % path)
 
+class History(MainHandler):
+    def get(self, path):
+        editions = model.get_page_editions(path)
+        if not editions:
+            self.write('not editions')
+        else:
+            self.render('history.html', editions = editions)
+
 import webapp2
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 app = webapp2.WSGIApplication([('/', Index),
@@ -89,6 +97,7 @@ app = webapp2.WSGIApplication([('/', Index),
                                ('/login', Login),
                                ('/logout', Logout),
                                ('/_edit' + PAGE_RE, Edit),
+                               ('/history' + PAGE_RE, History),
                                (PAGE_RE, WikiPage)
                                 ], 
                                  debug = True)
